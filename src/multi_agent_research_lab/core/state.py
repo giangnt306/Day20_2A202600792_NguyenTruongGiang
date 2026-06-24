@@ -32,3 +32,28 @@ class ResearchState(BaseModel):
 
     def add_trace_event(self, name: str, payload: dict[str, Any]) -> None:
         self.trace.append({"name": name, "payload": payload})
+
+    def record_agent_result(self, result: AgentResult) -> None:
+        """Append an agent result and mirror it into the trace."""
+
+        self.agent_results.append(result)
+        self.add_trace_event(
+            f"agent:{result.agent.value}",
+            {"chars": len(result.content), **result.metadata},
+        )
+
+    @property
+    def total_cost_usd(self) -> float:
+        """Sum of estimated LLM cost recorded across agent results."""
+
+        return float(sum(r.metadata.get("cost_usd", 0.0) or 0.0 for r in self.agent_results))
+
+    @property
+    def total_tokens(self) -> int:
+        """Sum of input + output tokens recorded across agent results."""
+
+        total = 0
+        for r in self.agent_results:
+            total += int(r.metadata.get("input_tokens", 0) or 0)
+            total += int(r.metadata.get("output_tokens", 0) or 0)
+        return total

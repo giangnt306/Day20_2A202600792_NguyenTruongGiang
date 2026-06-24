@@ -21,12 +21,38 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-4o-mini", validation_alias="OPENAI_MODEL")
 
     langsmith_api_key: str | None = Field(default=None, validation_alias="LANGSMITH_API_KEY")
-    langsmith_project: str = Field(default="multi-agent-research-lab", validation_alias="LANGSMITH_PROJECT")
+    langsmith_project: str = Field(
+        default="multi-agent-research-lab", validation_alias="LANGSMITH_PROJECT"
+    )
+
+    langfuse_public_key: str | None = Field(default=None, validation_alias="LANGFUSE_PUBLIC_KEY")
+    langfuse_secret_key: str | None = Field(default=None, validation_alias="LANGFUSE_SECRET_KEY")
+    langfuse_host: str = Field(
+        default="https://cloud.langfuse.com", validation_alias="LANGFUSE_HOST"
+    )
 
     tavily_api_key: str | None = Field(default=None, validation_alias="TAVILY_API_KEY")
 
     max_iterations: int = Field(default=6, ge=1, le=20, validation_alias="MAX_ITERATIONS")
     timeout_seconds: int = Field(default=60, ge=5, le=600, validation_alias="TIMEOUT_SECONDS")
+
+    @property
+    def llm_enabled(self) -> bool:
+        """True when a real LLM provider is configured."""
+
+        return bool(self.openai_api_key)
+
+    @property
+    def search_enabled(self) -> bool:
+        """True when a real search provider is configured."""
+
+        return bool(self.tavily_api_key)
+
+    @property
+    def langfuse_enabled(self) -> bool:
+        """True when Langfuse tracing credentials are present."""
+
+        return bool(self.langfuse_public_key and self.langfuse_secret_key)
 
 
 @lru_cache(maxsize=1)

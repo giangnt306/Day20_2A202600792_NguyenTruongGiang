@@ -24,7 +24,9 @@ llm = [
   "openai>=1.40",
   "langgraph>=0.2",
   "langchain-core>=0.2",
-  "langsmith>=0.1"
+  "langsmith>=0.1",
+  "tavily-python>=0.5",
+  "langfuse>=2.0"
 ]
 dev = [
   "pytest>=8.2",
@@ -54,6 +56,10 @@ strict = true
 warn_return_any = true
 warn_unused_configs = true
 mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["tavily.*", "langfuse.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
